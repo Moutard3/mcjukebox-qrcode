@@ -30,6 +30,7 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
         env:
+          GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload build artifacts
@@ -62,11 +63,13 @@ jobs:
       - name: Test
         run: ./gradlew test
         env:
+          GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Create Coverage
         run: ./gradlew jacocoTestReport
         env:
+          GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload CodeCov Report
@@ -115,5 +118,6 @@ jobs:
           yarn install
           yarn semantic-release
         env:
+          GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_URL: "https://api.github.com/"

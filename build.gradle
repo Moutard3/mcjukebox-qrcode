@@ -21,11 +21,10 @@ if (project.hasProperty("local_script")) {
     apply from: file(local_script + "/build.local.gradle")
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 ext {
-    mcVersion = project.property("mcVersion")
+    packageName = project.property("group") + '.' + project.property("pluginName")
 }
 
 group project.property("group")
@@ -34,8 +33,13 @@ spigot {
     name = project.property("pluginName")
     authors = [project.property("author")]
     apiVersion = project.property("apiVersion")
-    load = STARTUP
-    //    depends = ['']
+    load = POSTWORLD
+    depends = ['MCJukebox']
+    website = 'https://github.com/Moutard3/mcjukebox-qrcode'
+
+    debug {
+        buildVersion = project.property("mcVersion")
+    }
 }
 
 compileJava {
@@ -52,12 +56,23 @@ repositories {
     jcenter()
     spigot()
     maven { url = 'https://jitpack.io' }
+    maven { url = "https://repo.aikar.co/content/groups/aikar/" }
+    maven {
+        url = 'https://maven.pkg.github.com/oliverdunk/JukeboxAPI'
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {
-    compileOnly spigot(mcVersion)
+    compileOnly spigot()
 
     //Add dependencies here
+    compileOnly('com.oliverdunk:MCJukebox-plugin:2.6.7-RELEASE')
+    implementation('co.aikar:acf-paper:0.5.0-SNAPSHOT')
+    implementation('com.google.zxing:javase:3.4.1')
 
     //Test dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter:5.+'
@@ -67,12 +82,10 @@ dependencies {
 }
 
 shadowJar {
-    classifier = ''
-//    dependencies {
-//        include(dependency('co.aikar:acf-paper:0.5.0-SNAPSHOT'))
-//    }
-//    relocate 'co.aikar.commands', "${packageName}.acf"
-//    relocate 'co.aikar.locales', "${packageName}.locales"
+    archiveClassifier.set("")
+
+    relocate 'co.aikar.commands', "${packageName}.acf"
+    relocate 'co.aikar.locales', "${packageName}.locales"
 }
 
 tasks.build.dependsOn(shadowJar)
